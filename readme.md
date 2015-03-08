@@ -32,7 +32,7 @@ grunt.initConfig({
 
   // Usage - displays usage information in a user-friendly manner
   'usage': {
-    options: {
+    'options': {
       'title': 'My Awesome Website <https://site.com/>\n(C) 2015, MIT\n',
       // add all the tasks you want to display:
       'tasks': ['dev-build', 'release', 'jshint', 'jscs'],
@@ -136,7 +136,7 @@ such as "Checks code compliance with the style guide. See
 
 ```javascript
 'usage': {
-  options: {
+  'options': {
     'title': [
         'My Awesome Website <https://site.com/>',
         '(C) '+new Date().getFullYear()+', MIT license',

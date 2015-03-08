@@ -12,6 +12,9 @@ This plugin uses [argparse](https://github.com/nodeca/argparse) to display a
 usage overview that's relevant only to your tasks, and also allows you to
 hide the extraneous information that Grunt outputs while it's running a script.
 
+* [Github repo](https://github.com/msikma/grunt-usage)
+* [npm package details](https://www.npmjs.com/package/grunt-usage)
+
 
 Installation and setup
 ----------------------

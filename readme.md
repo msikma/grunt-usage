@@ -38,7 +38,12 @@ grunt.initConfig({
     'options': {
       'title': 'My Awesome Website <https://site.com/>\n(C) 2015, MIT\n',
       // add all the tasks you want to display:
-      'tasks': ['dev-build', 'release', 'jshint', 'jscs'],
+      'taskGroups': [
+        {
+          'header': 'My tasks',
+          'tasks': ['dev-build', 'release', 'jshint', 'jscs']
+        }
+      ],
     }
   }
 });
@@ -54,7 +59,7 @@ usage: grunt [dev] [release] [jshint] [jscs]
 
 Your package.json description value goes here.
 
-Grunt tasks:
+My tasks:
   dev       Runs a development server on localhost:8000.
   release   Compiles a release build of the website.
   jshint    Validate files with JSHint.
@@ -80,13 +85,28 @@ a string or an array (which will be joined with line breaks). This is a good
 place to add a copyright notice. You can [add some colors with an
 undocumented feature](http://stackoverflow.com/a/27496257/3553425).
 
-#### options.tasks
+#### options.taskGroups
 
 * Type: `Array`
 
-An array containing the tasks you'd like to show in the usage output. Note that
-you should use the *task names*, not the package names—e.g. `'jshint'` instead
-of `'grunt-contrib-jshint'`.
+An array containing the task groups you'd like to show in the usage output.
+
+##### options.taskGroups.header
+
+* Type: `String`
+* Default: `"Grunt tasks"`
+
+The section header displayed above the task group.
+
+##### options.taskGroups.tasks
+
+* Type: `Array`
+
+List of tasks to display in this task group. Note that you should use the
+*task names*, not the package names—e.g. `'jshint'` instead of
+`'grunt-contrib-jshint'`.
+
+Note that you cannot have duplicate tasks in multiple groups.
 
 #### options.hideTasks
 
@@ -118,13 +138,6 @@ Ensures that each description line ends with a period.
 By default, we show the description from the `package.json` file. Passing
 a `description` variable will override this.
 
-#### options.taskHeader
-
-* Type: `String`
-* Default: `"Grunt tasks"`
-
-The section header displayed above the list of supported Grunt tasks.
-
 #### options.taskDescriptionOverrides
 
 * Type: `Object`
@@ -134,6 +147,8 @@ if you don't like the `jscs` description (which is just "JavaScript Code
 Style checker"), you can override it here and type something more descriptive,
 such as "Checks code compliance with the style guide. See
 <http://site.com/styleguide/>."
+
+These overrides apply to every task group.
 
 ### Example with all options set
 
@@ -145,14 +160,22 @@ such as "Checks code compliance with the style guide. See
         '(C) '+new Date().getFullYear()+', MIT license',
         ''
     ],
-    'tasks': ['dev', 'release', 'jshint', 'jscs'],
+    'taskGroups': [
+      {
+        'header': 'Build tasks',
+        'tasks': ['dev', 'release']
+      },
+      {
+        'header': 'Code validation',
+        'tasks': ['jshint', 'jscs']
+      },
+    ],
     'hideTasks': true, // hide task header output
     'formatting': {
       'addPeriod': true
     },
     'description': 'Task runner setup for My Awesome Website. If you\'re ' +
       'lost, go to <http://mysite.com/documentation/> for more information.',
-    'taskHeader': 'Build tasks',
     'taskDescriptionOverrides': {
       'jscs': 'Ensures code compliance with the Google JS Style Guide. ' +
         'Details can be found at <http://goo.gl/tJaiiP>.',
@@ -176,6 +199,8 @@ Task runner setup for My Awesome Website. If you're lost, go to
 Build tasks:
   dev       Runs a development server on localhost:8000.
   release   Compiles a release build of the website.
+
+Code validation:
   jshint    Runs the JSHint linter on the library code.
   jscs      Ensures code compliance with the Google JS Style Guide. Details
             can be found at <http://goo.gl/tJaiiP>.

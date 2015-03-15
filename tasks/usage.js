@@ -10,7 +10,7 @@ var EOL = require('os').EOL;
  * Helper function in order to avoid a fatal error when the options
  * object has not been defined yet.
  *
- * @returns {{}} The usage options object
+ * @returns {Object} The usage options object
  */
 function getUsageOptions() {
   var configData = this.config.data;
@@ -24,7 +24,7 @@ function getUsageOptions() {
  * Returns the user's package file contents. This is used for the name
  * and description of the usage description.
  *
- * @returns {{}} The package info object
+ * @returns {Object} The package info object
  */
 function getPackageInfo() {
   var configData = this.config.data;
@@ -40,7 +40,7 @@ function getPackageInfo() {
  * mostly a period.
  *
  * @param {String} str The description string to format and return
- * @param {{}} formattingOptions Formatting options object
+ * @param {Object} formattingOptions Formatting options object
  * @returns {String} The formatted string
  */
 function formatDescription(str, formattingOptions) {
@@ -100,7 +100,7 @@ function formatUsageHeader(headerContent) {
  * so we add them to get argparse to do what we want, and then remove them
  * just before output. They can be safely filtered out.
  *
- * @param {{}} grunt The Grunt object
+ * @param {Object} grunt The Grunt object
  * @param {String} usageHeader The formatted usage header string
  * @param {String} usageHelp The output from Node argparse
  * @returns {String} The processed string
@@ -128,6 +128,48 @@ function hideTaskHeaders(grunt) {
   grunt.log.header = function() { /* NOP */ };
 }
 
+/**
+ * Adds a task group to the parser.
+ * 
+ * @param {Object} taskGroup The task group object
+ * @param {Object} grunt The global Grunt object
+ * @param {ArgumentParser} parser The global ArgumentParser object
+ * @param {Object} descriptionOverrides Task description overrides
+ * @param {Object} formattingOptions Options that determine the formatting
+ */
+function addTaskGroup(taskGroup, grunt, parser, descriptionOverrides,
+                      formattingOptions) {
+  var parserGruntTasks;
+  var taskName, taskInfo;
+  var n;
+
+  // Create the parser for this group.
+  parserGruntTasks = parser.addArgumentGroup({
+    title: taskGroup.header ? taskGroup.header : 'Grunt tasks',
+    required: false
+  });
+
+  // Iterate through all tasks that we want to see in the output.
+  for (n = 0; n < taskGroup.tasks.length; ++n) {
+    taskName = taskGroup.tasks[n];
+    taskInfo = grunt.task._tasks[taskName];
+
+    // Add a task to the argument parser using either the user's
+    // description override or its package.json description.
+    parserGruntTasks.addArgument(['-' + taskName], {
+        'nargs': 0,
+        'required': false,
+        'help': formatDescription(
+          descriptionOverrides[taskName] ?
+            descriptionOverrides[taskName] :
+            taskInfo.info,
+          formattingOptions
+        )
+      }
+    );
+  }
+}
+
 module.exports = function(grunt) {
   // Retrieve configuration info, including the options for the usage
   // task prior to the task's execution.
@@ -135,9 +177,9 @@ module.exports = function(grunt) {
   var usageOptions = getUsageOptions.apply(this);
   var packageInfo = _.extend(getPackageInfo.apply(this), usageOptions);
 
-  var usageHeader, usageHelp, usageString,
+  var usageHeader, usageHelp, usageContent, usageString,
       formattingOptions, formattingDefaults,
-      parser, parserGruntTasks;
+      parser;
 
   // If the user has set the hideTasks argument to true, we'll hide the
   // task title log output (unless the --show-titles cli argument is passed.)
@@ -157,50 +199,31 @@ module.exports = function(grunt) {
     addHelp: false,
     description: formatDescription(packageInfo.description, formattingOptions)
   });
-  parserGruntTasks = parser.addArgumentGroup({
-    title: usageOptions.taskHeader ? usageOptions.taskHeader : 'Grunt tasks',
-    required: false
-  });
 
   grunt.registerTask('usage', 'Prints usage information', function() {
     var options;
     var descriptionOverrides;
-    var taskName, taskInfo;
     var n;
 
     // Merge defaults with user-passed options.
     options = this.options({
-      'tasks': []
+      'taskGroups': []
     });
     descriptionOverrides = options.taskDescriptionOverrides ?
       options.taskDescriptionOverrides :
       {};
 
-    // Iterate through all tasks that we want to see in the output.
-    for (n = 0; n < options.tasks.length; ++n) {
-      taskName = options.tasks[n];
-      taskInfo = grunt.task._tasks[taskName];
-
-      // Add a task to the argument parser using either the user's
-      // description override or its package.json description.
-      parserGruntTasks.addArgument(['-' + taskName], {
-          'nargs': 0,
-          'required': false,
-          'help': formatDescription(
-            descriptionOverrides[taskName] ?
-              descriptionOverrides[taskName] :
-              taskInfo.info,
-            formattingOptions
-          )
-        }
-      );
+    // Iterate over all task groups and add them to the parser.
+    for (n = 0; n < options.taskGroups.length; ++n) {
+      addTaskGroup(options.taskGroups[n], grunt, parser, descriptionOverrides,
+        formattingOptions);
     }
-
-    // Add the header strings.
-    usageHeader = formatUsageHeader(options.title);
 
     // Retrieve the help content and run it through our filter.
     usageHelp = formatUsageHelp(parser.formatHelp());
+
+    // Add the header strings.
+    usageHeader = formatUsageHeader(options.title);
 
     // Create the final string, putting everything together, then output it.
     usageString = formatUsage(grunt, usageHeader, usageHelp);

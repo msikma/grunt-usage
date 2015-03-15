@@ -135,7 +135,7 @@ module.exports = function(grunt) {
   var usageOptions = getUsageOptions.apply(this);
   var packageInfo = _.extend(getPackageInfo.apply(this), usageOptions);
 
-  var usageHeader, usageHelp, usageContent, usageString,
+  var usageHeader, usageHelp, usageString,
       formattingOptions, formattingDefaults,
       parser, parserGruntTasks;
 

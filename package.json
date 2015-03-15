@@ -20,9 +20,7 @@
     "Argparse",
     "Optparse"
   ],
-  "author": {
-    "name": "Michiel Sikma"
-  },
+  "author": "Michiel Sikma <michiel@sikma.org>",
   "license": "MIT",
   "readmeFilename": "readme.md"
 }

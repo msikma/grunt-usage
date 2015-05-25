@@ -213,6 +213,12 @@ module.exports = function(grunt) {
       options.taskDescriptionOverrides :
       {};
 
+    if (options.description) {
+      parser.description = formatDescription(
+        options.description, formattingOptions
+      );
+    }
+
     // Iterate over all task groups and add them to the parser.
     for (n = 0; n < options.taskGroups.length; ++n) {
       addTaskGroup(options.taskGroups[n], grunt, parser, descriptionOverrides,
@@ -229,4 +235,4 @@ module.exports = function(grunt) {
     usageString = formatUsage(grunt, usageHeader, usageHelp);
     grunt.log.write(usageString);
   });
-}
+};

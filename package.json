@@ -1,6 +1,6 @@
 {
   "name": "grunt-usage",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Usage description compositor for Grunt",
   "main": "usage.js",
   "dependencies": {
